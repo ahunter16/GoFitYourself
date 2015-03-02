@@ -50,7 +50,7 @@ class work_schedule
 		//$work_time = (count($_POST["days"]) * $_POST["worktime"])
 		//$num_exercises = $totaltime / $exercise_time;
 
-		//--------------------TEMPORARY VARIABLES------------------------
+		//--------------------TEST CODE------------------------
 
 		
 
@@ -71,17 +71,17 @@ class work_schedule
 
 		while ($row = $ex_stmt->fetch())
 		{
-			$ex = new Exercise($row);
+			$ex = new Exercise($row, $pdo);
 			//echo $ex->name;
 			$exercises[] = $ex;
 
 		}
 
-
+/*----------------test code-------------------------------*/
 		$testworkout = new Workout("weights", 1);
 		//$testworkout->pair_exercises($pdo);
 		$testworkout->add_exercises(array(1,2,3), $pdo);
-		$testworkout->remove_exercise(1);///////////////
+		$testworkout->remove_exercise(3);
 		//echo $testworkout->exercises;
 		$coveredgroups = array();
 		while ($row = $pair_stmt->fetch())

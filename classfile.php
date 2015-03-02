@@ -11,19 +11,25 @@ class Exercise
 	public $rating = NULL;
 	public $sets = NULL;
 
-	function __construct($exercise)
+	function __construct($exercise, $pdo)
 	{
 		$this->id = $exercise["exercise_id"];
 		$this->name = $exercise["name"];
 		$this->reptime = $exercise["reptime"];
 		$this->rating = $exercise["rating"];
+		$this->pairup($pdo);
 	}
 
-	static function get_exercises()
+	static function get_exercise($num, $pdo)
 	{
+		$extra = "";
+		if ($num != "all" && is_int($num) == TRUE)
+		{
+			$extra = "WHERE ID = ".$num;
+		}
 		try
 		{
-			$ex_query = 'SELECT * FROM gofit2.strength_exercises ORDER BY rating DESC';
+			$ex_query = 'SELECT * FROM gofit2.strength_exercises'.$num.' ORDER BY rating DESC';
 			$ex_stmt = $pdo->query($ex_query);
 			$result = $ex_stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
@@ -40,6 +46,35 @@ class Exercise
 			$exercises[] = $ex;
 		}
 		return $exercises;
+	}
+
+	function pairup($pdo)
+	{
+		try 
+		{
+			$query = 'SELECT * FROM gofit2.muscle_exercise_pairs WHERE exercise_id = '.$this->id;
+			$stmt = $pdo->query($query);
+			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+		}
+		catch(PDOException $e)
+		{
+			$output = 'Error accessing pairs from database';
+			include 'output.html.php';
+			exit();
+		}
+
+		while ($row = $stmt->fetch())
+		{
+			$group =$row["grouptype"];
+			if ( $group == "main")
+			{
+				$this->mgroups[] = $row["muscle_id"];
+			}
+			elseif($group == "extra")
+			{
+				$this->egroups[] = $row["muscle_id"];
+			}
+		}
 	}
 
 }
@@ -114,7 +149,7 @@ class Workout
 
 		while($row = $stmt->fetch())
 		{
-			$newex = new Exercise($row);
+			$newex = new Exercise($row, $pdo);
 			//echo $row['exercise_id']." ".$row['name'];
 			$this->exercises[] = $newex;
 		}
@@ -123,13 +158,18 @@ class Workout
 
 	function remove_exercise($id)
 	{
-		while ($ex = current($this->exercises))
+		//echo $this->exercises[1]->id;
+		foreach($this->exercises as $ex)
 		{
-			if ($ex["exercise_id"] == $id)
+			if ($ex->id == $id)
 			{
+				echo "id: ".$id;
 				unset($this->exercises[key($this->exercises)]);
+				return;
+
 			}
 		}
+		echo "does not exist";
 	}
 
 	//takes all exercises stored and gives each exercise its corresponding muscle groups
@@ -189,6 +229,15 @@ class Schedule
 	{
 		$this->name = $name;
 
+	}
+
+	function days()
+	{
+		$days = array();
+		foreach($this->workouts as $w)
+		{
+			$days[] = $w->dayname;
+		}
 	}
 }
 
