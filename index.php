@@ -28,9 +28,12 @@ class work_schedule
 	{
 
 
-		if (isset($_POST["strength"]))
+		if (isset($_POST["strength"]) || isset($strength))
 		{
-			$schedule = strength_schedule();
+			for ($i = 0; $i < $strength; $i++)
+			{
+				$schedule = strength_schedule();
+			}
 		}
 	/*	elseif (isset($_POST["cardio"])
 		{
@@ -121,6 +124,11 @@ class work_schedule
 		return $returndays;
 
 
+	}
+
+	function getreps($exercise, $pdo)
+	{
+		Exercise::reps($exercise, $pdo);
 	}
 }
 include 'form.html.php';

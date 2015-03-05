@@ -1,7 +1,8 @@
 <?php 
+
 try
 {
-	global $pdo;
+	
 	$pdo = new PDO('mysql:host = localhost; dbname = gofit2', 'alex', 'gofityourself'); //sales, huntera, pricetool123 sales2 admins pMbQ2BxeJy6NLxGD
 	$pdo -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	$pdo -> exec('SET NAMES "utf8"');

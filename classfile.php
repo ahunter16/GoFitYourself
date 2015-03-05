@@ -77,6 +77,38 @@ class Exercise
 		}
 	}
 
+	//returns the corresponding rep/set ranges suitable for the user, as shown on: 
+	//http://www.aworkoutroutine.com/how-many-sets-and-reps-per-exercise/
+	static function reps($type, $pdo)
+	{
+		//could use "global $pdo;" instead of using it as argument every time, but this might be a security issue.
+		try 
+		{
+			$query = 'SELECT * FROM gofit2.intensity WHERE FIND_IN_SET("'.$type.'", class)>0';
+			$stmt = $pdo->query($query);
+			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+		}
+		catch(PDOException $e)
+		{
+			$output = 'Error accessing intensities from database';
+			include 'output.html.php';
+			exit();
+		}
+		$intensity = array();
+		while ($row = $stmt->fetch())
+		{
+			$intensity[] = $row;
+		}
+		if (sizeof($intensity) == 0)
+		{
+			echo "no intensities found";
+			return;
+		}
+
+		return $intensity;
+
+	}
+
 }
 
 class Day
@@ -171,52 +203,6 @@ class Workout
 		}
 		echo "does not exist";
 	}
-
-	//takes all exercises stored and gives each exercise its corresponding muscle groups
-/*	function pair_exercises($pdo)
-	{
-		$string = NULL;
-		foreach ($this->exercises as $e)
-		{
-			$string = $string . $e["id"] . ", ";
-		}
-		$string = rtrim($string, ", ");
-		echo $string;
-		try
-		{
-			$pair_query = 'SELECT *, gofit2.muscle_groups.name FROM gofit2.muscle_exercise_pairs WHERE exercise_id in ('.$string.') 
-			LEFT JOIN muscle_groups ON muscle_exercise_pairs.muscle_id=muscle_groups.muscle_id';
-			$pair_stmt = $pdo->query($pair_query);
-			$result = $pair_stmt->setFetchMode(PDO::FETCH_ASSOC);
-		}
-		catch (PDOException $e)
-		{
-			$output = 'Error fetching exercises from database: '. $e->getMessage();
-			include 'output.html.php';
-			exit();
-		}
-
-		while ($row = $pair_stmt->fetch())
-		{
-			echo $row;
-			foreach($this->exercises as $e)
-			{
-				if ($e["id"] == $row["exercise_id"])
-				{
-					if($row["grouptype"] == "main")
-					{
-						$e->mgroups[] = $row["name"]; 
-					}
-					elseif($row["grouptype"] == "extra")
-					{
-						$e->egroups[] = $row["name"];
-					}
-					break;
-				}
-			}
-		}
-	}*/
-
 	
 }
 

@@ -9,7 +9,14 @@
 	<body>
 
 		<br>
-		result: <?php $exercises = $newschedule->strength_schedule($pdo); foreach ($exercises as $e) {echo "<br>".$e->name." ".$e->rating ." ". $e->mgroups[0];}?>
+		result: <?php 
+		$exercises = $newschedule->strength_schedule($pdo); 
+		foreach ($exercises as $e) 
+			{
+				echo "<br>".$e->name." ".$e->rating ." ". $e->mgroups[0];
+			} 
+			echo "<br>";
+		$newschedule->getreps("endurance", $pdo);?>
 		<br>
 
 
