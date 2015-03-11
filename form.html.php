@@ -10,8 +10,8 @@
 
 		<br>
 		result: <?php 
-		$exercises = $newschedule->strength_schedule($pdo); 
-		foreach ($exercises as $e) 
+		$exercises = $newschedule->scheduler(); 
+		foreach ($exercises[0] as $e) 
 			{
 				echo "<br>".$e->name." ".$e->rating ." ". $e->mgroups[0];
 			} 

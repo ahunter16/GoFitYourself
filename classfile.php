@@ -20,8 +20,9 @@ class Exercise
 		$this->pairup($pdo);
 	}
 
-	static function get_exercise($num, $pdo)
+	static function get_exercise($num)
 	{
+		global $pdo;
 		$extra = "";
 		if ($num != "all" && is_int($num) == TRUE)
 		{
@@ -105,9 +106,16 @@ class Exercise
 			return;
 		}
 
+		
 		return $intensity;
 
 	}
+	//takes the corresponding values and calculates the approximate time it will take to do the exercise
+	function get_time($rest, $reps, $reptime, $sets)
+	{
+		return (($reps*$reptime)*$sets) + ($rest*($sets-1));
+	}
+
 
 }
 
@@ -202,6 +210,12 @@ class Workout
 			}
 		}
 		echo "does not exist";
+	}
+
+	//works out how many exercises of each group will be generated
+	static function split_ratio($extime, $length, $groups)
+	{
+		return floor((60*$length/$extime)/$groups);
 	}
 	
 }

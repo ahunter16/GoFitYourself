@@ -4,8 +4,9 @@
 include 'dblogin.php';
 include 'classfile.php';
 
+$splitrat = array("chest", "shoulders", "arms", "back", "legs", "abs");
 
-$newschedule = new work_schedule();
+$newschedule = new work_schedule($splitrat);
 echo "GOFitYourself";
 
 class work_schedule
@@ -14,9 +15,11 @@ class work_schedule
 	private $totaltime = 0;
 
 	
-	function __construct()
+	function __construct($split)
 	{
 		$exercises = array();
+		$schedule = array();
+		$splitratio = $split;
 		/*$days = days_used($_POST["days"]);
 		foreach($days as $day)
 		{
@@ -26,32 +29,36 @@ class work_schedule
 
 	function scheduler()
 	{
+		global $pdo;
+		$length = 60;
+		$split = "full";//shoult either say full or link to DB split
+		$weights = 1;
+		$rest = 60;
 
 
-		if (isset($_POST["strength"]) || isset($strength))
+
+		
+		if (/*$_POST["type"] == "weights" ||*/ isset($weights))
 		{
-			for ($i = 0; $i < $strength; $i++)
+			for ($i = 0; $i < $weights; $i++)
 			{
-				$schedule = strength_schedule();
-			}
+				$schedule[] = $this->strength_workout($pdo, $length, $split, $rest);
+			}//number of w/o, length of w/o, type, goal, split(array),rest
 		}
-	/*	elseif (isset($_POST["cardio"])
+		return $schedule;
+/*		elseif ($_POST["type"] == "cardio")
 		{
 			$schedule = cardio_schedule();
 		}*/
 	}
 
-	function strength_schedule($pdo)
+	function strength_workout($pdo, $length, $split, $rest)
 	{
 		
-		$reptime = 2;
+		$reptime = 3;
 
+		$currentlength = 0;
 		
-		//---------------------------------------------------------------
-		//$exercise_time = ($_POST["combo"][0] * $_POST["combo"][1])*$reptime + ($_POST["combo"][0] * $_POST["rest"]);
-
-		//$work_time = (count($_POST["days"]) * $_POST["worktime"])
-		//$num_exercises = $totaltime / $exercise_time;
 
 		//--------------------TEST CODE------------------------
 
@@ -83,7 +90,12 @@ class work_schedule
 /*----------------test code-------------------------------*/
 		$testworkout = new Workout("weights", 1);
 		//$testworkout->pair_exercises($pdo);
-		$testworkout->add_exercises(array(1,2,3), $pdo);
+		while ($currentlength < $length)
+		{
+			$testworkout->add_exercises(array(1,2,3), $pdo);//write function that takes an array of exercises and removes them as they're added
+			$currentlength += $ex->get_time(60, 5, 3, 5);
+		}
+		
 		$testworkout->remove_exercise(3);
 		//echo $testworkout->exercises;
 		$coveredgroups = array();
