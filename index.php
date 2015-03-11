@@ -31,7 +31,7 @@ class work_schedule
 	{
 		global $pdo;
 		$length = 60;
-		$split = "full";//shoult either say full or link to DB split
+		$split = "full";//should either say full or link to DB split
 		$weights = 1;
 		$rest = 60;
 
@@ -46,6 +46,7 @@ class work_schedule
 			}//number of w/o, length of w/o, type, goal, split(array),rest
 		}
 		return $schedule;
+		//return json_encode($schedule)
 /*		elseif ($_POST["type"] == "cardio")
 		{
 			$schedule = cardio_schedule();
