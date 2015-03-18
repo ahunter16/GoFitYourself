@@ -13,38 +13,42 @@ class work_schedule
 {
 
 	private $totaltime = 0;
+	public $routine = genroutine("weights", "strength", 60);
 
 	
-	function __construct($split)
+	function __construct($routine)
 	{
 		$exercises = array();
 		$schedule = array();
-		$splitratio = $split;
-		/*$days = days_used($_POST["days"]);
-		foreach($days as $day)
-		{
-			$totaltime += $day->freetime;
-		}*/
+		$this->routine = $routine;
+		//$split is an array containing indexes 0-5, corresponding to
+		//legs, back, chest, arms, shoulders, abs, and contains numbers signifying
+		//how much each group is to be worked out (defined by the )
+
 	}
 
-	function scheduler()
+	function scheduler($routine)
 	{
 		global $pdo;
+		//------------------------
+		//sample settings, NOT TO BE LEFT IN
 		$length = 60;
-		$split = "full";//should either say full or link to DB split
+		$split = array(8,8,8,8,8,8);
 		$weights = 1;
 		$rest = 60;
+		//-------------------------------------
 
 
 
 		
-		if (/*$_POST["type"] == "weights" ||*/ isset($weights))
+		if (isset($weights))
 		{
 			for ($i = 0; $i < $weights; $i++)
 			{
 				$schedule[] = $this->strength_workout($pdo, $length, $split, $rest);
 			}//number of w/o, length of w/o, type, goal, split(array),rest
 		}
+
 		return $schedule;
 		//return json_encode($schedule)
 /*		elseif ($_POST["type"] == "cardio")

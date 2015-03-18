@@ -6,10 +6,11 @@ class Exercise
 	public $name = NULL;
 	public $mgroups = array();
 	public $egroups = array();
-	public $rest = NULL;
 	public $reptime = NULL;
 	public $rating = NULL;
 	public $sets = NULL;
+	public $priority = NULL;
+	public $splits = SplFixedArray(7);
 
 	function __construct($exercise, $pdo)
 	{
@@ -17,6 +18,7 @@ class Exercise
 		$this->name = $exercise["name"];
 		$this->reptime = $exercise["reptime"];
 		$this->rating = $exercise["rating"];
+		$this->priority = $exercise["priority"];
 		$this->pairup($pdo);
 	}
 
@@ -70,10 +72,12 @@ class Exercise
 			if ( $group == "main")
 			{
 				$this->mgroups[] = $row["muscle_id"];
+				$this->splits[$row["id"]] = 2*$this->priority;
 			}
 			elseif($group == "extra")
 			{
 				$this->egroups[] = $row["muscle_id"];
+				$this->splits[$row["id"]] = $this->priority;
 			}
 		}
 	}
@@ -241,5 +245,41 @@ class Schedule
 	}
 }
 
+class Routine
+{
+	public $type; 		//type of workout: cardio or weights
+	public $subtype; 	//subtype: eg strength, endurance, etc
+	public $rest;		//rest time between exercises in seconds
+	public $options =array();
+}
+
+class Option
+{
+	public $splits = array();	//attention to be paid to given muscle group
+	public $length;				//length of given workout
+}
+
+static class utilities()
+{
+	public static function add_merge($split1, $split2)
+	{
+		if (count($split1) > $split2)
+		{
+			$a = $split1;
+			$split1 = $split2;
+			$split2 = $a;
+		}
+
+		$array = array();
+		for ($i = 0; $i < count($split1); $i++)
+		{
+			$array[] = $split1[$i]+$split2[$i]
+		}
+
+		return $array;
+	}
+
+
+}
 
 ?>
