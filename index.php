@@ -32,21 +32,18 @@ class work_schedule
 		global $pdo;
 		//------------------------
 		//sample settings, NOT TO BE LEFT IN
-		$length = 60;
-		$split = array(8,8,8,8,8,8);
-		$weights = 1;
-		$rest = 60;
+
 		//-------------------------------------
 
 
 
 		
-		if (isset($weights))
+		if ($routine->type == "weights"))
 		{
-			for ($i = 0; $i < $weights; $i++)
+			foreach($routine->workouts as $w)
 			{
-				$schedule[] = $this->strength_workout($pdo, $length, $split, $rest);
-			}//number of w/o, length of w/o, type, goal, split(array),rest
+				$schedule[] = $this->strength_workout($pdo, $w, $routine->rest);
+			}
 		}
 
 		return $schedule;
@@ -57,7 +54,7 @@ class work_schedule
 		}*/
 	}
 
-	function strength_workout($pdo, $length, $split, $rest)
+	function strength_workout($pdo, $option, $rest)
 	{
 		
 		$reptime = 3;
