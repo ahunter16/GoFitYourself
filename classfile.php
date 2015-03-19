@@ -10,7 +10,7 @@ class Exercise
 	public $rating = NULL;
 	public $sets = NULL;
 	public $priority = NULL;
-	public $splits = SplFixedArray(7);
+	public $split = NULL;
 
 	function __construct($exercise, $pdo)
 	{
@@ -19,6 +19,7 @@ class Exercise
 		$this->reptime = $exercise["reptime"];
 		$this->rating = $exercise["rating"];
 		$this->priority = $exercise["priority"];
+		$this->split = new SplFixedArray(7);
 		$this->pairup($pdo);
 	}
 
@@ -72,12 +73,12 @@ class Exercise
 			if ( $group == "main")
 			{
 				$this->mgroups[] = $row["muscle_id"];
-				$this->splits[$row["id"]] = 2*$this->priority;
+				$this->split[$row["muscle_id"]] = 2*$this->priority;
 			}
 			elseif($group == "extra")
 			{
 				$this->egroups[] = $row["muscle_id"];
-				$this->splits[$row["id"]] = $this->priority;
+				$this->split[$row["muscle_id"]] = $this->priority;
 			}
 		}
 	}
@@ -255,15 +256,16 @@ class Routine
 
 class Option
 {
-	public $splits = array();	//attention to be paid to given muscle group
+	public $split = array();	//attention to be paid to given muscle group
 	public $length;				//length of given workout
+	public $maxlength;
 }
 
-static class utilities()
+class Utilities
 {
 	public static function add_merge($split1, $split2)
 	{
-		if (count($split1) > $split2)
+		if (count($split1) > count($split2))
 		{
 			$a = $split1;
 			$split1 = $split2;
@@ -273,10 +275,26 @@ static class utilities()
 		$array = array();
 		for ($i = 0; $i < count($split1); $i++)
 		{
-			$array[] = $split1[$i]+$split2[$i]
+			$array[] = $split1[$i]+$split2[$i];
 		}
 
 		return $array;
+	}
+
+	function check_split($max, $current, $points)
+	{
+		for ($i = 0; $i < count($current); $i++)
+		{
+			if ($max[$i] - $current[$i] <= $points)
+			{
+				if ($current[$i] > $max[$i])
+				{
+					return FALSE;
+				}
+			}
+
+		}
+		return TRUE;
 	}
 
 

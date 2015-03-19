@@ -9,14 +9,23 @@
 	<body>
 
 		<br>
-		result: <?php 
-		$exercises = $newschedule->scheduler(); 
-		foreach ($exercises[0] as $e) 
+		<?php 
+		$schedule = new work_schedule(genroutine("weights", "strength", 60));
+		$schedule->scheduler(); 
+		$counter = 1;
+		foreach ($schedule->schedule as $w) 
 			{
-				echo "<br>".$e->name." ".$e->rating ." ". $e->mgroups[0];
+				echo "<b>Workout: ".$counter."</b>";
+				foreach($w->exercises as $e)
+				{
+					echo "<br>".$e->name." ".$e->rating ." ". $e->mgroups[0];
+				}
+				$counter++;
+				echo "<br><br>";
+				//break;
 			} 
-			echo "<br>";
-		$newschedule->getreps("endurance", $pdo);?>
+			
+		/*$newschedule->getreps("endurance", $pdo);*/?>
 		<br>
 
 
