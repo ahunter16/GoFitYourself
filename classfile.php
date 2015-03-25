@@ -1,15 +1,16 @@
 <?php
 
+//Object representing an exercise in the context of a user's workout
 class Exercise
 {
-	public $id = NULL;
-	public $name = NULL;
-	public $mgroups = array();
-	public $egroups = array();
-	public $reptime = NULL;
-	public $rating = NULL;
-	public $sets = NULL;
-	public $priority = NULL;
+	public $id = NULL; 			//exercise id as seen in the DB
+	public $name = NULL;		//name of exercise
+	public $mgroups = array();	//the main muscle group(s) the exercise focuses on
+	public $egroups = array();	//the muscle groups that are used, but not targeted by the exercise
+	public $reptime = NULL;		//time taken to complete a rep in seconds
+	public $rating = NULL;		//user rating for an exercise
+	public $sets = NULL;		//number of sets the user is to do
+	public $priority = NULL;	//category of exercise, from important to ancillary
 	public $split = NULL;
 
 	function __construct($exercise, $pdo)
@@ -19,10 +20,11 @@ class Exercise
 		$this->reptime = $exercise["reptime"];
 		$this->rating = $exercise["rating"];
 		$this->priority = $exercise["priority"];
-		$this->split = new SplFixedArray(7);
+		$this->split = new SplFixedArray(8);
 		$this->pairup($pdo);
 	}
 
+	//retrieves an array of any/all exercises which correspond to the provided id(s)
 	static function get_exercise($num)
 	{
 		global $pdo;
@@ -52,6 +54,7 @@ class Exercise
 		return $exercises;
 	}
 
+	//assigns the correct mgroups and egroups to the exercise
 	function pairup($pdo)
 	{
 		try 
@@ -79,6 +82,13 @@ class Exercise
 			{
 				$this->egroups[] = $row["muscle_id"];
 				$this->split[$row["muscle_id"]] = $this->priority;
+			}
+		}
+		for($i = 0; $i<8; $i++)
+		{
+			if (!isset($this->split[$i]))
+			{
+				$this->split[$i] = 0;
 			}
 		}
 	}
@@ -124,6 +134,7 @@ class Exercise
 
 }
 
+//not likely to be used
 class Day
 {
 	public $name = NULL;
@@ -154,13 +165,14 @@ class Day
 
 }
 
+//represents a user's workout on a given day
 class Workout
 {
-	public $type = NULL;
-	public $count = NULL;
-	public $time = NULL; //start time
-	public $exercises = array();
-	public $maxtime = NULL;
+	public $type = NULL;			//strength, size, endurance, etc
+	public $count = NULL;			//number of exercises (may delete)
+	public $time = NULL; 			//start time or time taken
+	public $exercises = array();	//array containing all exercises in the workout
+	public $maxtime = NULL;			//max amount of time allowed for the workout 
 	public $dayname = NULL;
 
 	function __construct($type, $maxtime)
@@ -263,6 +275,7 @@ class Option
 
 class Utilities
 {
+	//adds up the values of 2 arrays
 	public static function add_merge($split1, $split2)
 	{
 		if (count($split1) > count($split2))
@@ -281,19 +294,39 @@ class Utilities
 		return $array;
 	}
 
+	//checks an array against another to make sure no value exceeds
+	//any corresponding value in the latter array
 	function check_split($max, $current, $points)
 	{
+/*		echo "max:[";
+		foreach ($max as $a)
+		{
+			echo $a . ", ";
+		}
+		echo "] ";
+		echo "current:[";
+		foreach ($current as $a)
+		{
+			echo $a . ", ";
+		}
+		echo "] ";
+		echo "points:" .$points." ";*/
+
+
 		for ($i = 0; $i < count($current); $i++)
 		{
 			if ($max[$i] - $current[$i] <= $points)
-			{
+			{	
+				//echo $i;
 				if ($current[$i] > $max[$i])
 				{
+					//echo " FALSE" . $max[$i]. " ".$current[$i]."<br>";
 					return FALSE;
 				}
 			}
 
 		}
+		//echo " TRUE <br>";
 		return TRUE;
 	}
 

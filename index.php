@@ -58,9 +58,11 @@ class work_schedule
 
 		$currentlength = 0;
 		
-		$split = new SplFixedArray(7);
+		$split = new SplFixedArray(8);
 
-		$tempsplit = new SplFixedArray(7);
+		$tempsplit = new SplFixedArray(8);
+		$tempsplit = [0,0,0,0,0,0,0,0];
+		$split = [0,0,0,0,0,0,0,0];
 
 		//--------------------TEST CODE------------------------
 
@@ -85,13 +87,25 @@ class work_schedule
 			{
 				$ex = new Exercise($row, $pdo);
 				$tempsplit = $this->util->add_merge($tempsplit, $ex->split);
-				if ($this->util->check_split($option->split, $tempsplit, 2*$i))
+
+
+/*				echo $ex->name."[";
+				foreach ($ex->split as $s)
+				{
+					echo $s.", ";
+				}
+				echo "]";*/
+
+				if ($this->util->check_split($option->split, $tempsplit, $i))
 				{
 					$split = $tempsplit;
+					$workout->exercises[] = $ex;
 				}
-				//echo $ex->name;
-				$workout->exercises[] = $ex;
+				$tempsplit = $split;
+				
+				
 			}
+			$tempsplit = [0,0,0,0,0,0,0,0];
 		}
 
 
