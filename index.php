@@ -7,7 +7,7 @@ include 'testfile.php';
 
 
 
-echo "GOFitYourself";
+echo "gofityourself";
 
 class work_schedule
 {
@@ -68,17 +68,17 @@ class work_schedule
 
 		$workout = new Workout("weights", 60);
 
-		for ($i = 3; $i >= 0; $i--)
+		for ($i = 3; $i > 0; $i--)
 		{
 			try
 			{
-				$ex_query = 'SELECT * FROM gofit2.strength_exercises WHERE priority = '.$i.' ORDER BY rating DESC';
+				$ex_query = 'SELECT * FROM gofityourself.strength_exercises WHERE priority = '.$i.' ORDER BY rating DESC';
 				$ex_stmt = $pdo->query($ex_query);
 				$result = $ex_stmt->setFetchMode(PDO::FETCH_ASSOC);
 			}
 			catch (PDOException $e)
 			{
-				$output = 'Error fetching exercises from database: '. $e->getMessage();
+				$output = 'Error2 fetching exercises from database: '. $e->getMessage();
 				include 'output.html.php';
 				exit();
 			}
@@ -105,8 +105,16 @@ class work_schedule
 				
 				
 			}
-			$tempsplit = [0,0,0,0,0,0,0,0];
+/*			echo "SPLIT[";
+			foreach ($tempsplit as $i)
+				{
+					echo $i.", ";
+				}
+			echo "]";
+			*/
+			
 		}
+		$tempsplit = [0,0,0,0,0,0,0,0];
 
 
 		return $workout;

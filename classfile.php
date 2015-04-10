@@ -35,7 +35,7 @@ class Exercise
 		}
 		try
 		{
-			$ex_query = 'SELECT * FROM gofit2.strength_exercises'.$num.' ORDER BY rating DESC';
+			$ex_query = 'SELECT * FROM gofityourself.strength_exercises'.$num.' ORDER BY rating DESC';
 			$ex_stmt = $pdo->query($ex_query);
 			$result = $ex_stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
@@ -59,7 +59,7 @@ class Exercise
 	{
 		try 
 		{
-			$query = 'SELECT * FROM gofit2.muscle_exercise_pairs WHERE exercise_id = '.$this->id;
+			$query = 'SELECT * FROM gofityourself.muscle_exercise_pairs WHERE exercise_id = '.$this->id;
 			$stmt = $pdo->query($query);
 			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
@@ -76,7 +76,14 @@ class Exercise
 			if ( $group == "main")
 			{
 				$this->mgroups[] = $row["muscle_id"];
-				$this->split[$row["muscle_id"]] = 2*$this->priority;
+				if ($row["muscle_id"] > 2)
+				{
+					$this->split[$row["muscle_id"]] = 4*$this->priority;
+				}
+				else
+				{
+					$this->split[$row["muscle_id"]] = 2*$this->priority;
+				}
 			}
 			elseif($group == "extra")
 			{
@@ -86,7 +93,7 @@ class Exercise
 		}
 		for($i = 0; $i<8; $i++)
 		{
-			if (!isset($this->split[$i]))
+			if (empty($this->split[$i]))
 			{
 				$this->split[$i] = 0;
 			}
@@ -100,7 +107,7 @@ class Exercise
 		//could use "global $pdo;" instead of using it as argument every time, but this might be a security issue.
 		try 
 		{
-			$query = 'SELECT * FROM gofit2.intensity WHERE FIND_IN_SET("'.$type.'", class)>0';
+			$query = 'SELECT * FROM gofityourself.intensity WHERE FIND_IN_SET("'.$type.'", class)>0';
 			$stmt = $pdo->query($query);
 			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
@@ -193,7 +200,7 @@ class Workout
 
 		try
 		{
-			$query = 'SELECT * FROM gofit2.strength_exercises WHERE exercise_id in ('.$idstring.')';
+			$query = 'SELECT * FROM gofityourself.strength_exercises WHERE exercise_id in ('.$idstring.')';
 			$stmt = $pdo->query($query);
 			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
@@ -312,6 +319,10 @@ class Utilities
 		echo "] ";
 		echo "points:" .$points." ";*/
 
+		if (count($max) < 8)
+		{
+			return FALSE;
+		}
 
 		for ($i = 0; $i < count($current); $i++)
 		{
