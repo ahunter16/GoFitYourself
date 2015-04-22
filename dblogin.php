@@ -3,7 +3,7 @@
 try
 {
 	
-	$pdo = new PDO('mysql:host=db4free.net;dbname = gofityourself', 'gofityourself', 'CS3024Bravo15Fit');
+	$pdo = new PDO('mysql:host = localhost; dbname = gofit2', 'root',''); //alex, gofityourself
 	$pdo -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	$pdo -> exec('SET NAMES "utf8"');
 

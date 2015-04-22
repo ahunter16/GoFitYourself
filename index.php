@@ -29,7 +29,7 @@ class work_schedule
 		//how much each group is to be worked out (defined by the )
 
 	}
-
+	//calls the strength workout function with the provided information
 	function scheduler()
 	{
 		global $pdo;
@@ -45,11 +45,9 @@ class work_schedule
 
 		return $this->schedule;
 		//return json_encode($schedule)
-/*		elseif ($_POST["type"] == "cardio")
-		{
-			$schedule = cardio_schedule();
-		}*/
+
 	}
+
 
 	function strength_workout($pdo, $option, $rest)
 	{
@@ -66,7 +64,7 @@ class work_schedule
 
 		//--------------------TEST CODE------------------------
 
-		$workout = new Workout("weights", 60);
+		$workout = new Workout("weights", 60, "5x5");
 
 		for ($i = 3; $i > 0; $i--)
 		{
@@ -88,14 +86,6 @@ class work_schedule
 				$ex = new Exercise($row, $pdo);
 				$tempsplit = $this->util->add_merge($tempsplit, $ex->split);
 
-
-/*				echo $ex->name."[";
-				foreach ($ex->split as $s)
-				{
-					echo $s.", ";
-				}
-				echo "]";*/
-
 				if ($this->util->check_split($option->split, $tempsplit, $i))
 				{
 					$split = $tempsplit;
@@ -105,13 +95,7 @@ class work_schedule
 				
 				
 			}
-/*			echo "SPLIT[";
-			foreach ($tempsplit as $i)
-				{
-					echo $i.", ";
-				}
-			echo "]";
-			*/
+
 			
 		}
 		$tempsplit = [0,0,0,0,0,0,0,0];

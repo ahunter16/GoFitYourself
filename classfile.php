@@ -141,36 +141,6 @@ class Exercise
 
 }
 
-//not likely to be used
-class Day
-{
-	public $name = NULL;
-	public $freetime =NULL;	
-	public $dayno = NULL;
-	function __construct($name)
-	{
-		switch($name)
-		{
-			case "Mon":
-				$this->dayno = 0;			
-			case "Tue":
-				$this->dayno = 1;
-			case "Wed":
-				$this->dayno = 2;
-			case "Thu":
-				$this->dayno = 3;
-			case "Fri":
-				$this->dayno = 4;
-			case "Sat":
-				$this->dayno = 5;
-			case "Sun":
-				$this->dayno = 6;
-
-		}
-	}
-
-
-}
 
 //represents a user's workout on a given day
 class Workout
@@ -181,11 +151,15 @@ class Workout
 	public $exercises = array();	//array containing all exercises in the workout
 	public $maxtime = NULL;			//max amount of time allowed for the workout 
 	public $dayname = NULL;
+	public $sets = NULL;
+	public $reps = NULL;
 
-	function __construct($type, $maxtime)
+	function __construct($type, $maxtime, $rep)
 	{
 		$this->type = $type;
 		$this->maxtime = $maxtime;
+		$this->sets = $rep;
+		$this->reps = intval(strtok($reps, 'x')) * intval(strtok('x'));
 	}
 
 	function add_exercises($ids, $pdo)
