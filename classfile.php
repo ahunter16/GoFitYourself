@@ -313,19 +313,19 @@ class Workout
 //object passed from the java program. Contains an "Options" object for each workout.
 class Routine
 {
-	public $type; 				//subtype: eg strength, endurance, etc
-	public $rest;				//rest time between exercises in seconds
-	public $options = array();	//array to contain Options objects
-	public $intensity;			//the id of the intensity to be used(see database table "intensity")
-	public $userid;
+	public $type; 				//STRING - subtype: eg strength, endurance, etc
+	public $rest;				//INT - rest time between exercises in seconds
+	public $options = array();	//ARRAY OF OPTIONS OBJECTS, LENGTH DEPENDS ON NUMBER OF WORKOUTS - array to contain Options objects
+	public $intensity;			//INT - the id of the intensity to be used(see database table "intensity")
+	public $userid;				//INT - the id of the user in the database
 }
 
 //information about a given workout; the split 
 class Options
 {
-	public $split;		//attention to be paid to given muscle group
-	public $length;		//length of given workout
-	public $maxlength;	//max length of the workout
+	public $split;		//ARRAY OF INTs, FIXED LENGTH OF 8 - attention to be paid to given muscle group
+	public $length;		//INT - length of given workout in seconds
+	public $maxlength;	//INT - the length of time that this workout should not exceed in seconds
 
 	function __construct()
 	{
