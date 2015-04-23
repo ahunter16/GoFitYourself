@@ -9,23 +9,47 @@ class Exercise
 	public $egroups = array();	//the muscle groups that are used, but not targeted by the exercise
 	public $reptime = NULL;		//time taken to complete a rep in seconds
 	public $rating = NULL;		//user rating for an exercise
-	public $sets = NULL;		//number of sets the user is to do
 	public $priority = NULL;	//category of exercise, from important to ancillary
 	public $split = NULL;
+	public $userid = -1;
 
-	function __construct($exercise, $pdo)
+	function __construct($exercise, $userid)
 	{
+		global $pdo;
 		$this->id = $exercise["exercise_id"];
 		$this->name = $exercise["name"];
 		$this->reptime = $exercise["reptime"];
-		$this->rating = $exercise["rating"];
 		$this->priority = $exercise["priority"];
 		$this->split = new SplFixedArray(8);
 		$this->pairup($pdo);
+		$this->userid = $userid;
+
+		try
+		{
+			$query = 'SELECT * FROM gofit2.ratings WHERE user_id = '.$userid;
+			$stmt = $pdo->query($query);
+			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+		}
+		catch (PDOException $e)
+		{
+			$output = 'Error fetching ratings from database: '. $e->getMessage();
+			include 'output.html.php';
+			exit();
+		}
+		$row = $stmt->fetch();
+		if (!empty($row))
+		{
+			$this->rating = $row["rating"];
+		}
+		else 
+		{
+			$this->rating = $exercise["rating"];
+		}
+
 	}
 
 	//retrieves an array of any/all exercises which correspond to the provided id(s)
-	static function get_exercise($num)
+	static function get_exercise($num, $userid)
 	{
 		global $pdo;
 		$extra = "";
@@ -35,7 +59,7 @@ class Exercise
 		}
 		try
 		{
-			$ex_query = 'SELECT * FROM gofityourself.strength_exercises'.$num.' ORDER BY rating DESC';
+			$ex_query = 'SELECT * FROM gofit2.strength_exercises'.$num.' ORDER BY rating DESC';
 			$ex_stmt = $pdo->query($ex_query);
 			$result = $ex_stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
@@ -48,18 +72,19 @@ class Exercise
 
 		while ($row = $ex_stmt->fetch())
 		{
-			$ex = new Exercise($row);
+			$ex = new Exercise($row, $userid);
 			$exercises[] = $ex;
 		}
 		return $exercises;
 	}
 
 	//assigns the correct mgroups and egroups to the exercise
-	function pairup($pdo)
+	function pairup()
 	{
+		global $pdo;
 		try 
 		{
-			$query = 'SELECT * FROM gofityourself.muscle_exercise_pairs WHERE exercise_id = '.$this->id;
+			$query = 'SELECT * FROM gofit2.muscle_exercise_pairs WHERE exercise_id = '.$this->id;
 			$stmt = $pdo->query($query);
 			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
@@ -102,18 +127,19 @@ class Exercise
 
 	//returns the corresponding rep/set ranges suitable for the user, as shown on: 
 	//http://www.aworkoutroutine.com/how-many-sets-and-reps-per-exercise/
-	static function reps($type, $pdo)
+	static function reps($type)
 	{
-		//could use "global $pdo;" instead of using it as argument every time, but this might be a security issue.
+
+		global $pdo;
 		try 
 		{
-			$query = 'SELECT * FROM gofityourself.intensity WHERE FIND_IN_SET("'.$type.'", class)>0';
+			$query = 'SELECT * FROM gofit2.intensity WHERE FIND_IN_SET("'.$type.'", class)>0';
 			$stmt = $pdo->query($query);
 			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
 		catch(PDOException $e)
 		{
-			$output = 'Error accessing intensities from database';
+			$output = 'Error accessing intensity from database';
 			include 'output.html.php';
 			exit();
 		}
@@ -124,21 +150,19 @@ class Exercise
 		}
 		if (sizeof($intensity) == 0)
 		{
-			echo "no intensities found";
+			echo "no intensity found";
 			return;
 		}
 
-		
 		return $intensity;
 
 	}
+
 	//takes the corresponding values and calculates the approximate time it will take to do the exercise
 	function get_time($rest, $reps, $reptime, $sets)
 	{
 		return (($reps*$reptime)*$sets) + ($rest*($sets-1));
 	}
-
-
 }
 
 
@@ -146,35 +170,25 @@ class Exercise
 class Workout
 {
 	public $type = NULL;			//strength, size, endurance, etc
-	public $count = NULL;			//number of exercises (may delete)
-	public $time = NULL; 			//start time or time taken
-	public $exercises = array();	//array containing all exercises in the workout
-	public $maxtime = NULL;			//max amount of time allowed for the workout 
-	public $dayname = NULL;
-	public $sets = NULL;
-	public $reps = NULL;
+	public $time = NULL; 			//time taken
+	public $exercises = array();	//array containing all exercises in the workout 
+	public $intensity = NULL;		//string representing the set/rep combination
+	public $reps = NULL;			//total number of reps
+	public $rest = NULL;
+	public $userid = -1;
 
-	function __construct($type, $maxtime, $rep)
+	function __construct($routine, $time)
 	{
-		$this->type = $type;
-		$this->maxtime = $maxtime;
-		$this->sets = $rep;
-		$this->reps = intval(strtok($reps, 'x')) * intval(strtok('x'));
-	}
-
-	function add_exercises($ids, $pdo)
-	{
-		$idstring = "";
-		foreach($ids as $id)
-		{
-			$idstring = $idstring.$id.", ";
-		}
-
-		$idstring = rtrim($idstring, ", ");
+		$this->type = $routine->type;
+		$this->time = $time;
+		$this->userid = $routine->userid;
+		$this->rest = $routine->rest;
+		
+		global $pdo;
 
 		try
 		{
-			$query = 'SELECT * FROM gofityourself.strength_exercises WHERE exercise_id in ('.$idstring.')';
+			$query = 'SELECT * FROM gofit2.intensity WHERE intensity_id = '.$routine->intensity;
 			$stmt = $pdo->query($query);
 			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
@@ -187,11 +201,89 @@ class Workout
 
 		while($row = $stmt->fetch())
 		{
-			$newex = new Exercise($row, $pdo);
-			//echo $row['exercise_id']." ".$row['name'];
+			$this->intensity = $row["name"];
+			$this->reps = intval($row["sets"]) * intval($row["reps"]);
+		}
+		
+	}
+
+	function add_exercises($ids)
+	{
+		global $pdo;
+		$idstring = "";
+		foreach($ids as $id)
+		{
+			$idstring = $idstring.$id.", ";
+		}
+
+		$idstring = rtrim($idstring, ", ");
+
+		try
+		{
+			$query = 'SELECT * FROM gofit2.strength_exercises WHERE exercise_id in ('.$idstring.')';
+			$stmt = $pdo->query($query);
+			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+		}
+		catch (PDOException $e)
+		{
+			$output = 'Error fetching exercises from database: '. $e->getMessage();
+			include 'output.html.php';
+			exit();
+		}
+
+		while($row = $stmt->fetch())
+		{
+			$newex = new Exercise($row, $this->userid);
 			$this->exercises[] = $newex;
 		}
 
+	}
+
+
+	//retrieves a users' workouts
+	static function getworkouts($userid)
+	{
+		$workoutarray = array();
+		$conter = 0;
+		try
+		{
+			$query = 'SELECT * FROM gofit2.workouts WHERE user_id ='.$userid.';';
+			$stmt = $pdo->query($query);
+			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+		}
+		catch (PDOException $e)
+		{
+			$output = 'Error fetching exercises from database: '. $e->getMessage();
+			include 'output.html.php';
+			exit();
+		}
+
+		while($row = $stmt->fetch())
+		{
+			try
+			{
+				$query2 = 'SELECT * FROM gofit2.workout_pairs WHERE workout_id = '.$row["workout_id"]. 'ORDER BY order';
+				$stmt2 = $pdo->query($query);
+				$result2 = $stmt2->setFetchMode(PDO::FETCH_ASSOC);
+			}
+			catch (PDOException $e)
+			{
+				$output = 'Error fetching exercises from database: '. $e->getMessage();
+				include 'output.html.php';
+				exit();
+			}
+
+			$workoutobj = new Workout($row["type"], $row["time"], $row["intensity"], 60);
+
+			while($row2 = $stmt2->fetch())
+			{
+				$workoutobj->exercises[] = new Exercise($row2, $userid);
+			}
+
+			$counter++;
+		}
+
+		return $workoutobj;
 	}
 
 	function remove_exercise($id)
@@ -218,42 +310,32 @@ class Workout
 	
 }
 
-class Schedule
-{
-	public $name = NULL;
-	public $workouts = array();
-
-	function __construct($name)
-	{
-		$this->name = $name;
-
-	}
-
-	function days()
-	{
-		$days = array();
-		foreach($this->workouts as $w)
-		{
-			$days[] = $w->dayname;
-		}
-	}
-}
-
+//object passed from the java program. Contains an "Options" object for each workout.
 class Routine
 {
-	public $type; 		//type of workout: cardio or weights
-	public $subtype; 	//subtype: eg strength, endurance, etc
-	public $rest;		//rest time between exercises in seconds
-	public $options =array();
+	public $type; 				//subtype: eg strength, endurance, etc
+	public $rest;				//rest time between exercises in seconds
+	public $options = array();	//array to contain Options objects
+	public $intensity;			//the id of the intensity to be used(see database table "intensity")
+	public $userid;
 }
 
-class Option
+//information about a given workout; the split 
+class Options
 {
-	public $split = array();	//attention to be paid to given muscle group
-	public $length;				//length of given workout
-	public $maxlength;
+	public $split;		//attention to be paid to given muscle group
+	public $length;		//length of given workout
+	public $maxlength;	//max length of the workout
+
+	function __construct()
+	{
+		$this->split = new SplFixedArray(8);
+	}						
+
 }
 
+//extra functions used in the business logic. Mostly for checking 
+//exercises to be added to a workout
 class Utilities
 {
 	//adds up the values of 2 arrays
@@ -279,20 +361,6 @@ class Utilities
 	//any corresponding value in the latter array
 	function check_split($max, $current, $points)
 	{
-/*		echo "max:[";
-		foreach ($max as $a)
-		{
-			echo $a . ", ";
-		}
-		echo "] ";
-		echo "current:[";
-		foreach ($current as $a)
-		{
-			echo $a . ", ";
-		}
-		echo "] ";
-		echo "points:" .$points." ";*/
-
 		if (count($max) < 8)
 		{
 			return FALSE;
@@ -302,16 +370,13 @@ class Utilities
 		{
 			if ($max[$i] - $current[$i] <= $points)
 			{	
-				//echo $i;
 				if ($current[$i] > $max[$i])
 				{
-					//echo " FALSE" . $max[$i]. " ".$current[$i]."<br>";
 					return FALSE;
 				}
 			}
-
 		}
-		//echo " TRUE <br>";
+
 		return TRUE;
 	}
 

@@ -1,22 +1,36 @@
 <?php
 
-
 include 'dblogin.php';
 include 'classfile.php';
 include 'testfile.php';
 
+echo "gofit2";
 
 
-echo "gofityourself";
+function generate_workouts($routine)
+{
+	return json_encode(new work_schedule($routine, $userid));
+}
+
+
+function getreps($exercise, $pdo)
+{
+	return json_encode(Exercise::reps($exercise, $pdo));
+}
+
+
+function getworkout($userid)
+{
+	return json_encode(Workout::getworkouts($userid));
+}
+
 
 class work_schedule
 {
-
-	private $totaltime = 0;
 	public $routine;
 	public $schedule = NULL;
 	public $util = NULL;
-
+	public $userid = -1;
 	
 	function __construct($routine)
 	{
@@ -24,53 +38,51 @@ class work_schedule
 		$schedule = array();
 		$this->routine = $routine;
 		$this->util = new Utilities();
+		$this->userid = $routine->userid;
+
 		//$split is an array containing indexes 0-5, corresponding to
 		//legs, back, chest, arms, shoulders, abs, and contains numbers signifying
-		//how much each group is to be worked out (defined by the )
+		//how much each group is to be worked out (defined by the size of the 
+		//number at the corresponding index)
 
 	}
+
 	//calls the strength workout function with the provided information
 	function scheduler()
 	{
 		global $pdo;
 
-		
-		if ($this->routine->type == "weights")
+		for($i = 0; $i < count($this->routine->options); $i++)
 		{
-			foreach($this->routine->options as $w)
-			{
-				$this->schedule[] = $this->strength_workout($pdo, $w, $this->routine->rest);
-			}
+			$this->schedule[] = $this->strength_workout($this->routine, $i, $this->userid);
 		}
 
-		return $this->schedule;
-		//return json_encode($schedule)
+		return json_encode($this->schedule);
 
 	}
 
-
-	function strength_workout($pdo, $option, $rest)
+	//generates a strength workout based on constraints supplied in the $routine object
+	private function strength_workout($routine, $number)
 	{
-		
-		$reptime = 3;
+		global $pdo;
 
 		$currentlength = 0;
 		
 		$split = new SplFixedArray(8);
-
 		$tempsplit = new SplFixedArray(8);
+
 		$tempsplit = [0,0,0,0,0,0,0,0];
 		$split = [0,0,0,0,0,0,0,0];
 
-		//--------------------TEST CODE------------------------
+		$option = $routine->options[$number];
 
-		$workout = new Workout("weights", 60, "5x5");
+		$workout = new Workout($routine, $option->maxlength);
 
 		for ($i = 3; $i > 0; $i--)
 		{
 			try
 			{
-				$ex_query = 'SELECT * FROM gofityourself.strength_exercises WHERE priority = '.$i.' ORDER BY rating DESC';
+				$ex_query = 'SELECT * FROM gofit2.strength_exercises WHERE priority = '.$i.' ORDER BY rating DESC';
 				$ex_stmt = $pdo->query($ex_query);
 				$result = $ex_stmt->setFetchMode(PDO::FETCH_ASSOC);
 			}
@@ -83,7 +95,7 @@ class work_schedule
 
 			while ($row = $ex_stmt->fetch())
 			{
-				$ex = new Exercise($row, $pdo);
+				$ex = new Exercise($row, $routine->userid);
 				$tempsplit = $this->util->add_merge($tempsplit, $ex->split);
 
 				if ($this->util->check_split($option->split, $tempsplit, $i))
@@ -92,8 +104,6 @@ class work_schedule
 					$workout->exercises[] = $ex;
 				}
 				$tempsplit = $split;
-				
-				
 			}
 
 			
@@ -102,33 +112,6 @@ class work_schedule
 
 
 		return $workout;
-	}
-
-	function days_used($days)
-	{
-
-		$indexes = array_fill(0, 7, 0);
-		$returndays = array();
-
-		$workouts = 0;
-		foreach ($days as $d)
-		{
-			$indexes[$d->dayno] = 1;
-			$workouts ++;
-		}
-
-		//----------------------------------------------------------------
-		//need to determine how we're calculating the days
-		// add days to array in ascending order of freetime; use
-		//$returndays[] = , and array_unshift($returnvalues, $daywithlessfreetime)
-		return $returndays;
-
-
-	}
-
-	function getreps($exercise, $pdo)
-	{
-		Exercise::reps($exercise, $pdo);
 	}
 }
 include 'form.html.php';

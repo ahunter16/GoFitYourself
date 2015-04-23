@@ -10,10 +10,10 @@
 
 		<br>
 		<?php 
-		$schedule = new work_schedule(genroutine("weights", "strength", 60));
-		$schedule->scheduler(); 
+		$schedule = genroutine("weights", "strength", 60);
+		$myschedule = json_decode($schedule->scheduler()); 
 		$counter = 1;
-		foreach ($schedule->schedule as $w) 
+		foreach ($myschedule as $w) 
 			{
 				echo "<b>Workout: ".$counter."</b>";
 				foreach($w->exercises as $e)
