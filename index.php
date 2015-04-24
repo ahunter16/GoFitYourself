@@ -6,22 +6,30 @@ include 'testfile.php';
 
 echo "gofit2";
 
-
+//generates workouts based on 
 function generate_workouts($routine)
 {
-	return json_encode(new work_schedule($routine, $userid));
+	$myschedule = new work_schedule(json_decode($routine));
+	return json_encode($myschedule->scheduler());
+}
+
+//gets the set/rep ranges suitable for this type of exercise
+function getreps($type)
+{
+	global $pdo;
+	return json_encode(Exercise::reps(json_decode($type), $pdo));
 }
 
 
-function getreps($exercise, $pdo)
+function getworkouts($userid)
 {
-	return json_encode(Exercise::reps($exercise, $pdo));
+	return json_encode(Workout::getworkouts(json_decode($userid)));
 }
 
-
-function getworkout($userid)
+function insertworkout($workout, $order)
 {
-	return json_encode(Workout::getworkouts($userid));
+	$savedworkout = json_decode($workout);
+	Workout::save($savedworkout, $order);
 }
 
 
@@ -40,8 +48,8 @@ class work_schedule
 		$this->util = new Utilities();
 		$this->userid = $routine->userid;
 
-		//$split is an array containing indexes 0-5, corresponding to
-		//legs, back, chest, arms, shoulders, abs, and contains numbers signifying
+		//$split is an array containing indexes 0-7, corresponding to
+		//legs, back, chest, biceps, triceps, shoulders, forearms, and abs, and contains numbers signifying
 		//how much each group is to be worked out (defined by the size of the 
 		//number at the corresponding index)
 
@@ -54,10 +62,10 @@ class work_schedule
 
 		for($i = 0; $i < count($this->routine->options); $i++)
 		{
-			$this->schedule[] = $this->strength_workout($this->routine, $i, $this->userid);
+			$this->schedule[] = $this->strength_workout($this->routine, $i);
 		}
 
-		return json_encode($this->schedule);
+		return $this->schedule;
 
 	}
 
@@ -71,18 +79,19 @@ class work_schedule
 		$split = new SplFixedArray(8);
 		$tempsplit = new SplFixedArray(8);
 
-		$tempsplit = [0,0,0,0,0,0,0,0];
-		$split = [0,0,0,0,0,0,0,0];
+		$tempsplit 	=	[0,0,0,0,0,0,0,0];
+		$split 		= 	[0,0,0,0,0,0,0,0];
+		$filter 	=	[4,4,4,1,2,2,2,3];
 
 		$option = $routine->options[$number];
 
-		$workout = new Workout($routine, $option->maxlength);
+		$workout = new Workout($routine, 0);
 
 		for ($i = 3; $i > 0; $i--)
 		{
 			try
 			{
-				$ex_query = 'SELECT * FROM gofit2.strength_exercises WHERE priority = '.$i.' ORDER BY rating DESC';
+				$ex_query = 'SELECT * FROM gofit2.strength_exercises WHERE priority = '.$i.' AND equipment < '.(intval($routine->equipment)+2).' ORDER BY rating DESC';
 				$ex_stmt = $pdo->query($ex_query);
 				$result = $ex_stmt->setFetchMode(PDO::FETCH_ASSOC);
 			}
@@ -95,13 +104,34 @@ class work_schedule
 
 			while ($row = $ex_stmt->fetch())
 			{
+				
 				$ex = new Exercise($row, $routine->userid);
 				$tempsplit = $this->util->add_merge($tempsplit, $ex->split);
+				$extime = $ex->get_time($workout);
 
-				if ($this->util->check_split($option->split, $tempsplit, $i))
+				if ($this->util->check_split($option->split, $tempsplit, $i) && ($extime + $workout->time) < $option->maxtime)
 				{
-					$split = $tempsplit;
-					$workout->exercises[] = $ex;
+
+					$approved = 1;
+					foreach($ex->mgroups as $mg)
+					{
+						if ($filter[$mg] < $i)
+						{
+							$approved = 0;
+						}
+					}
+
+					if($approved == 1)
+					{
+						foreach($ex->mgroups as $mg)
+						{	
+							$filter[$mg] = $filter[$mg]-1;
+						}
+						$split = $tempsplit;
+						$workout->exercises[] = $ex;
+						$workout->time += $extime;
+					}
+
 				}
 				$tempsplit = $split;
 			}
@@ -109,8 +139,7 @@ class work_schedule
 			
 		}
 		$tempsplit = [0,0,0,0,0,0,0,0];
-
-
+		$workout->order = $option->order;
 		return $workout;
 	}
 }

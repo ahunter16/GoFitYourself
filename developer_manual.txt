@@ -1,0 +1,81 @@
+Developer Manual
+
+Using theGoFitYourself Business Logic
+
+
+
+1.0 Required Changes to Code before Deployment---------------------------------
+
+The business logic is currently operational in a testing environment. However please note that testfile.php
+and form.html.php are for testing purposes ONLY, and therefore should not be put on the server with
+the other 3 files.
+
+Additionally, some editing is needed to make the app function with the newly deployed database that I've not
+been able to access. This is detailed in the section below
+
+
+1.1 Database Access--------------------------------------------------------------
+
+the file "dblogin" is where you would put in the login details for a given user. You could simply have a 
+username for all users which is used to login, and use verification of the user's id as security.
+
+In order to make the scripts work, you must:
+-change line 6 of dblogin to contain the appropriate information about the database
+-use the "find and replace" function in your editor to replace all instances of the placeholder 
+database name (which is "gofit2") with whatever name you assign to the new database. (do this in index.php and classfile.php)
+
+
+2.0 Additions which need to be made to the App-----------------------------------
+
+In order to call methods found in the business logic, you must first provide some data to the app.
+In order to generate some workouts, you must call the "generate_workouts" function (found in index.php)
+and pass a "Routine" object as a parameter.
+
+2.1 Routine Objects--------------------------------------------------------------
+
+You must define this object in the app with the following fields which I have bullet pointed:
+
+-type 		- String which holds the type of exercise, i.e. "strength", "endurance", or "size"
+-rest 		- int which holds the rest time of the user in seconds
+-options 	- array of variable size consisting of Options objects(I will explain these below)
+-intensity 	- int which stores the id of an intensity stored in the database. intensities are 
+		rep/set ranges such as 5x5, or 3x8.
+-userid 	- the id of the user as it appears in the database
+-equipment 	- reflects the amount of equipment needed for a given exercise: 1 = none or free weights, 
+		2 = basic equipment like a bench or medicine ball, 3 = big specialist equipment like cable 
+		machines or smith machines that you onlyreally find in gyms
+
+this object is then passed 
+
+2.2 Options Objects--------------------------------------------------------------
+
+The Routine object contains  an array of Options objects. For each Options object found here, a workout will
+be generated.
+
+You must also define this object in the app with the following bullet pointed fields:
+
+-split 		- an array of ints of length 8. This array represents how much attention is given to each 
+		muscle group during the workout.*
+-time 		- an int, ignore this and set it to 0 every time.
+-maxtime 	-int which stores the maximum time the workout is allowed to last for (in seconds)
+-order 		-the order that this exercise will be retrieved in
+
+*this array will look something like [6,6,6,6,6,6,6,6] for a full body workout, as each muscle is paid equal attention.
+the values correspond to [legs, back, chest, biceps, triceps, shoulders, forearms, abs] respectively
+
+here are some common workout splits which you can encode
+
+Full body:  [7,7,7,7,7,7,7] for all workouts
+
+3 Day push/pull routine: Workout 1: [20,0,0,0,0,0,0,20]
+			 Workout 2: [0,0,20,0,20,20,0,20]
+			 Workout 3: [0,20,0,20,0,0,20,20]
+
+generally speaking, you want to have roughly 20 points assigned to each muscle group per week,
+plus or minus around 5 points.
+
+
+
+
+
+								

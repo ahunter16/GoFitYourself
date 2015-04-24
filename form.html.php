@@ -11,7 +11,7 @@
 		<br>
 		<?php 
 		$schedule = genroutine("weights", "strength", 60);
-		$myschedule = json_decode($schedule->scheduler()); 
+		$myschedule = json_decode(generate_workouts(json_encode($schedule))); 
 		$counter = 1;
 		foreach ($myschedule as $w) 
 			{
@@ -24,6 +24,7 @@
 				echo "<br><br>";
 				//break;
 			} 
+		insertworkout(json_encode($myschedule[0]), 0);
 			
 		/*$newschedule->getreps("endurance", $pdo);*/?>
 		<br>

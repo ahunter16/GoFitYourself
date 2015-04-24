@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 23, 2015 at 05:48 PM
+-- Generation Time: Apr 24, 2015 at 07:13 PM
 -- Server version: 5.6.21
 -- PHP Version: 5.5.19
 
@@ -269,39 +269,39 @@ INSERT INTO `strength_exercises` (`exercise_id`, `name`, `reptime`, `equipment`,
 (32, 'Back Extensions', 1, '2', '3', '2'),
 (33, 'Good Mornings', 2, '1', '4', '2'),
 (34, 'Barbell Row', 0, '1', '5', '3'),
-(35, 'Pyramid Cable Press', 1, '1', '4', '1'),
+(35, 'Pyramid Cable Press', 1, '3', '4', '1'),
 (36, 'Front Plate Raise', 2, '1', '4', '1'),
 (37, 'Seated Arnold Press', 1, '1', '5', '1'),
 (38, 'Dumbbell Shoulder Press', 1, '1', '4', '1'),
 (39, 'Standing Barbell Row', 2, '1', '4', '2'),
 (40, 'Dumbbell Side Push-Out', 1, '1', '3', '1'),
 (41, 'Lateral shoulder Raise', 1, '1', '4', '1'),
-(42, 'Bent-Over Cable Raise', 2, '1', '3', '2'),
+(42, 'Bent-Over Cable Raise', 2, '3', '3', '2'),
 (43, 'One-Arm Dumbbell Raise', 1, '1', '3', '1'),
 (44, 'Reverse Fly', 2, '1', '2', '1'),
-(45, 'Triceps Bench Dip', 2, '1', '3', '1'),
-(46, 'Skull Crushers', 1, '1', '4', '1'),
-(47, 'Smith Machine Close-Grip Press', 1, '1', '2', '2'),
-(48, 'One-Arm Cable Extension', 1, '1', '1', '1'),
-(49, 'Rope Overhead Extension', 2, '1', '4', '1'),
-(50, 'Rope Push-Down', 1, '1', '5', '1'),
+(45, 'Triceps Bench Dip', 2, '2', '3', '1'),
+(46, 'Skull Crushers', 1, '2', '4', '1'),
+(47, 'Smith Machine Close-Grip Press', 1, '3', '2', '2'),
+(48, 'One-Arm Cable Extension', 1, '3', '1', '1'),
+(49, 'Rope Overhead Extension', 2, '3', '4', '1'),
+(50, 'Rope Push-Down', 1, '3', '5', '1'),
 (51, 'Tricep Extension', 1, '1', '4', '1'),
 (52, 'Dumbbell Kickback', 1, '1', '2', '1'),
-(53, 'Rope Hammer Curl', 1, '1', '5', '1'),
-(54, 'Reclining Cable Curl', 1, '1', '3', '1'),
+(53, 'Rope Hammer Curl', 1, '3', '5', '1'),
+(54, 'Reclining Cable Curl', 1, '3', '3', '1'),
 (55, 'Barbell Curl', 1, '1', '4', '1'),
 (56, 'Alternating Hammer Curl', 2, '1', '1', '1'),
 (57, 'Dumbbell Curl', 1, '1', '2', '1'),
-(58, 'Plate Curl', 2, '1', '4', '1'),
+(58, 'Plate Curl', 0, '1', '4', '1'),
 (59, 'Hammer Curl', 1, '1', '3', '1'),
 (60, 'Wrist Curl', 1, '1', '4', '1'),
 (61, 'Single-Arm Concentration Curl', 1, '1', '3', '1'),
-(62, 'Smith Machine Squat', 2, '1', '4', '3'),
-(63, 'Smith Machine Single-Leg Press', 2, '1', '3', '3'),
+(62, 'Smith Machine Squat', 2, '3', '4', '3'),
+(63, 'Smith Machine Single-Leg Press', 2, '3', '3', '3'),
 (64, 'Leg Press Plie', 2, '1', '2', '3'),
-(65, 'Flat Bench Dumbbell Squat', 2, '1', '3', '3'),
+(65, 'Flat Bench Dumbbell Squat', 2, '2', '3', '3'),
 (66, 'Dumbbell Walking Lunge', 2, '1', '5', '2'),
-(67, 'Flat Bench Step-Up', 3, '1', '2', '2'),
+(67, 'Flat Bench Step-Up', 3, '2', '2', '2'),
 (68, 'Barbell Squat', 2, '1', '5', '3'),
 (69, 'Lateral Lunge', 2, '1', '3', '2'),
 (70, 'Lunge', 2, '1', '2', '2'),
@@ -310,11 +310,11 @@ INSERT INTO `strength_exercises` (`exercise_id`, `name`, `reptime`, `equipment`,
 (73, 'Stiff-Legged Barbell Deadlift', 2, '1', '4', '3'),
 (74, 'Plie Squat', 2, '1', '3', '3'),
 (75, 'Dumbbell Shin Raise', 2, '1', '2', '1'),
-(76, 'Step-Up', 1, '1', '3', '2'),
-(77, 'Step-Down', 1, '1', '2', '2'),
+(76, 'Step-Up', 1, '2', '3', '2'),
+(77, 'Step-Down', 1, '2', '2', '2'),
 (78, 'Dumbbell Calf Raise', 1, '1', '3', '1'),
 (79, 'Calf Raise', 1, '1', '4', '1'),
-(80, 'Cable Abduction', 2, '1', '5', '2'),
+(80, 'Cable Abduction', 2, '3', '5', '2'),
 (81, 'Clamshells', 1, '1', '4', '1');
 
 -- --------------------------------------------------------
@@ -327,7 +327,14 @@ CREATE TABLE IF NOT EXISTS `users` (
 `user_id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL,
   `email` varchar(100) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`user_id`, `name`, `email`) VALUES
+(1, 'Alex Hunter', 'alex.alex@alex.alex');
 
 -- --------------------------------------------------------
 
@@ -341,8 +348,16 @@ CREATE TABLE IF NOT EXISTS `workouts` (
   `time` int(11) NOT NULL DEFAULT '0',
   `intensity` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `type` enum('strength','size','endurance') NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `type` enum('strength','size','endurance') NOT NULL,
+  `rest` int(11) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `workouts`
+--
+
+INSERT INTO `workouts` (`workout_id`, `order`, `time`, `intensity`, `user_id`, `type`, `rest`) VALUES
+(5, 0, 2170, 6, 1, 'strength', 60);
 
 -- --------------------------------------------------------
 
@@ -355,7 +370,21 @@ CREATE TABLE IF NOT EXISTS `workout_pairs` (
   `workout_id` int(11) NOT NULL,
   `exercise_id` int(11) NOT NULL,
   `order` int(11) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `workout_pairs`
+--
+
+INSERT INTO `workout_pairs` (`pair_id`, `workout_id`, `exercise_id`, `order`) VALUES
+(1, 5, 4, 0),
+(2, 5, 68, 1),
+(3, 5, 27, 2),
+(4, 5, 37, 3),
+(5, 5, 58, 4),
+(6, 5, 51, 5),
+(7, 5, 60, 6),
+(8, 5, 11, 7);
 
 --
 -- Indexes for dumped tables
@@ -453,17 +482,17 @@ MODIFY `exercise_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=82;
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
 --
 -- AUTO_INCREMENT for table `workouts`
 --
 ALTER TABLE `workouts`
-MODIFY `workout_id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `workout_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `workout_pairs`
 --
 ALTER TABLE `workout_pairs`
-MODIFY `pair_id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `pair_id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=9;
 --
 -- Constraints for dumped tables
 --
