@@ -75,7 +75,51 @@ generally speaking, you want to have roughly 20 points assigned to each muscle g
 plus or minus around 5 points.
 
 
+2.3 Workout Objects----------------------------------------------------------
 
+an object representing a user's workout information.
+
+the fields are:
+
+-type		-string, the type of workout (strength, size, or endurance)
+-time		-int, time it takes to complete the workout (in seconds)
+-exercises	-array of exercise objects
+-intensity	-string, the rep/set range of the exercise, eg 5x5, 3x8 (no spaces)
+-intensityid	-int, the id of th eintensity as found in the database
+-rest		-int, number of seconds user will rest between sets
+-userid		-int, the id of the user whom this workout was created by
+-order		-int, the order in which this workout should appear in the user's schedule (starting at 0)
+
+
+2.4 Exercise Objects-----------------------------------------------------------
+
+same as above. I've omitted descriptions for fields you don't need to deal with.
+Fields are:
+
+-id		-int, id of exercise as is in the databse
+-name		-string, name of exercise
+-mgroups	-array of ints, variable size
+-egroups	-array of ints, variable size
+-reptime	-int
+-rating		-int, value between 1 and 5 inclusive
+-priority	-int between 1 and 3 inclusive
+-split		array of ints, fixed size (always has 8 elements)
+-userid		-int, id of user accessing th eexercise
+3.0 How to Use--------------------------------------------------------------
+
+You shouldn't need to use much more than the functions at the top of index.php. They should cover what we need:
+
+generate_workouts($routine) - 		arguments: a json encoded Routine object
+					returns: a list of workouts
+
+getreps($type) -			arguments: a string representing the type of exercise (strength, size, or endurance)
+					returns: a list of strings, each of which is a set/rep range which is suitable for the given type
+
+getworkouts($userid) - 			arguments: the user's id, as it would appear in the database (an int)
+					returns: a list of all workouts associated with a user
+
+insertworkouts($workout, $order)-	arguments: a json_encoded workout object, and the order in which this exercise appears in a users workout (starting at 0
+					returns: nothing
 
 
 								

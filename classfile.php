@@ -253,7 +253,7 @@ class Workout
 		$conter = 0;
 		try
 		{
-			$query = 'SELECT * FROM gofit2.workouts WHERE user_id ='.$userid.';';
+			$query = 'SELECT * FROM gofit2.workouts WHERE user_id ='.$userid.' ORDER BY order DESC;';
 			$stmt = $pdo->query($query);
 			$result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
 		}
@@ -268,7 +268,7 @@ class Workout
 		{
 			try
 			{
-				$query2 = 'SELECT * FROM gofit2.workout_pairs WHERE workout_id = '.$row["workout_id"]. 'ORDER BY order';
+				$query2 = 'SELECT * FROM gofit2.workout_pairs WHERE workout_id = '.$row["workout_id"]. 'ORDER BY order DESC';
 				$stmt2 = $pdo->query($query2);
 				$result2 = $stmt2->setFetchMode(PDO::FETCH_ASSOC);
 			}

@@ -6,26 +6,30 @@ include 'testfile.php';
 
 echo "gofit2";
 
-//generates workouts based on 
+//generates workouts based on information provided by a routine
 function generate_workouts($routine)
 {
 	$myschedule = new work_schedule(json_decode($routine));
 	return json_encode($myschedule->scheduler());
 }
 
-//gets the set/rep ranges suitable for this type of exercise
+//gets the set/rep ranges suitable for this type of exercise. you may need to remove the decode statement
 function getreps($type)
 {
 	global $pdo;
 	return json_encode(Exercise::reps(json_decode($type), $pdo));
 }
 
-
+//returns all workouts associated with a user. you may need to remove the decode statement
 function getworkouts($userid)
 {
 	return json_encode(Workout::getworkouts(json_decode($userid)));
 }
 
+//inserts a given workout into the database. This includes storing
+//information about the workout itself, as well as making record of all exercises associated with it
+//you must pass a json encoded workout object as well as a number represending the order this workout should come
+//in the users' weekly schedule.
 function insertworkout($workout, $order)
 {
 	$savedworkout = json_decode($workout);
